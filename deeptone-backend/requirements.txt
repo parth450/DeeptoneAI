@@ -6,3 +6,4 @@ soundfile
 numpy
 pymongo
 matplotlib
+pandas
