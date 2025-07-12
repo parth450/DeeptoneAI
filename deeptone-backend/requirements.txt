@@ -1,0 +1,7 @@
+Flask
+flask-cors
+librosa
+scikit-learn
+soundfile
+numpy
+pymongo
