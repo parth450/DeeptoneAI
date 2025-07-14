@@ -29,7 +29,7 @@ export default function FileUpload({ username, refreshHistory, onUploadComplete 
     formData.append('username', username);
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/predict', {
+      const res = await fetch('https://deeptoneai.onrender.com/predict', {
         method: 'POST',
         body: formData,
       });
