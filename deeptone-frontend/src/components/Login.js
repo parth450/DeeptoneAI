@@ -21,13 +21,14 @@ export default function Login({ onSwitch, onLoginSuccess }) {
       const data = await res.json();
 
       if (res.ok && data.username) {
-        onLoginSuccess(data.username); 
+        alert('Login successful');
+        onLoginSuccess(data.username);
       } else {
         alert(data.error || 'Login failed.');
       }
     } catch (err) {
-      console.error(err);
-      alert('Error logging in');
+      console.error('Login Error:', err);
+      alert('Error logging in. Backend may be waking up...');
     }
   };
 
