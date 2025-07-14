@@ -1,6 +1,8 @@
 from pymongo import MongoClient
+import os
 
-MONGO_URI = "_______"
+# Use environment variable for security
+MONGO_URI = os.environ.get("MONGO_URI")
 
 try:
     client = MongoClient(MONGO_URI)
