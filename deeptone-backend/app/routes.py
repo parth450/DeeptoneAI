@@ -16,7 +16,7 @@ def home():
     return "🎧 Welcome to Deeptone AI API — Deepfake Voice Detection"
 
 
-#  AUDIO PREDICTION ROUTE
+# 🎧 AUDIO PREDICTION ROUTE
 @main.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
@@ -44,7 +44,6 @@ def predict():
             "username": username,
         })
 
-        #   Check collection properly
         if predictions_collection is not None:
             inserted = predictions_collection.insert_one(clean_result)
             clean_result["_id"] = str(inserted.inserted_id)
@@ -56,7 +55,7 @@ def predict():
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 
-#  USER REGISTRATION
+# 📝 USER REGISTRATION
 @main.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -64,10 +63,10 @@ def register():
     password = data.get("password")
 
     if not username or not password:
-        return jsonify({"error": "Username and password are required"}), 400
+        return jsonify({"success": False, "error": "Username and password are required"}), 400
 
     if users_collection.find_one({"username": username}):
-        return jsonify({"error": "User already exists"}), 409
+        return jsonify({"success": False, "error": "User already exists"}), 409
 
     hashed_password = generate_password_hash(password)
     users_collection.insert_one({
@@ -75,10 +74,10 @@ def register():
         "password": hashed_password
     })
 
-    return jsonify({"message": "User registered successfully"}), 201
+    return jsonify({"success": True, "message": "User registered successfully"}), 201
 
 
-#  USER LOGIN
+# 🔐 USER LOGIN
 @main.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -87,22 +86,21 @@ def login():
 
     user = users_collection.find_one({"username": username})
     if not user:
-        return jsonify({"error": "Invalid username"}), 401
+        return jsonify({"success": False, "error": "Invalid username"}), 401
 
     if not check_password_hash(user['password'], password):
-        return jsonify({"error": "Invalid password"}), 401
+        return jsonify({"success": False, "error": "Invalid password"}), 401
 
-    return jsonify({"message": "Login successful", "username": username}), 200
+    return jsonify({"success": True, "message": "Login successful", "username": username}), 200
 
 
-#  HISTORY ROUTE
+# 📜 HISTORY ROUTE
 @main.route('/history/<username>', methods=['GET'])
 def get_history(username):
     try:
         if not username:
             return jsonify({"error": "Username required"}), 400
 
-        #  Check collection explicitly
         if predictions_collection is None:
             return jsonify([]), 200
 
