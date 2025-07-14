@@ -10,13 +10,12 @@ from app.database import predictions_collection, users_collection
 
 main = Blueprint('main', __name__)
 
-
 @main.route('/')
 def home():
     return "🎧 Welcome to Deeptone AI API — Deepfake Voice Detection"
 
 
-# 🎧 AUDIO PREDICTION ROUTE
+# 🔍 AUDIO PREDICTION ROUTE
 @main.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
@@ -31,13 +30,12 @@ def predict():
     try:
         result = classify_audio(file)
 
-        # Convert NumPy floats to native Python floats
+        # Clean numpy floats to native Python floats
         clean_result = {
             k: float(v) if isinstance(v, (np.float32, np.float64)) else v
             for k, v in result.items()
         }
 
-        # Add metadata
         clean_result.update({
             "filename": file.filename,
             "timestamp": datetime.utcnow(),
@@ -55,7 +53,7 @@ def predict():
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 
-# 📝 USER REGISTRATION
+# 👤 USER REGISTRATION
 @main.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -63,10 +61,10 @@ def register():
     password = data.get("password")
 
     if not username or not password:
-        return jsonify({"success": False, "error": "Username and password are required"}), 400
+        return jsonify({"error": "Username and password are required"}), 400
 
     if users_collection.find_one({"username": username}):
-        return jsonify({"success": False, "error": "User already exists"}), 409
+        return jsonify({"error": "User already exists"}), 409
 
     hashed_password = generate_password_hash(password)
     users_collection.insert_one({
@@ -74,7 +72,7 @@ def register():
         "password": hashed_password
     })
 
-    return jsonify({"success": True, "message": "User registered successfully"}), 201
+    return jsonify({"message": "User registered successfully", "success": True}), 201
 
 
 # 🔐 USER LOGIN
@@ -86,15 +84,15 @@ def login():
 
     user = users_collection.find_one({"username": username})
     if not user:
-        return jsonify({"success": False, "error": "Invalid username"}), 401
+        return jsonify({"error": "Invalid username"}), 401
 
     if not check_password_hash(user['password'], password):
-        return jsonify({"success": False, "error": "Invalid password"}), 401
+        return jsonify({"error": "Invalid password"}), 401
 
-    return jsonify({"success": True, "message": "Login successful", "username": username}), 200
+    return jsonify({"message": "Login successful", "username": username}), 200
 
 
-# 📜 HISTORY ROUTE
+# 📜 USER HISTORY
 @main.route('/history/<username>', methods=['GET'])
 def get_history(username):
     try:
