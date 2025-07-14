@@ -24,11 +24,11 @@ export default function Register({ onSwitch }) {
         alert('Registration successful! You can now login.');
         onSwitch(); // switch to login screen
       } else {
-        alert(data.message || 'Registration failed.');
+        alert(data.error || data.message || 'Registration failed.');
       }
     } catch (err) {
       console.error(err);
-      alert('Error during registration');
+      alert('Error during registration. Please try again later.');
     }
   };
 
