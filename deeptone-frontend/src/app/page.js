@@ -34,7 +34,7 @@ export default function Home() {
 
   const fetchHistory = async (uname) => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/history/${uname}`);
+      const res = await fetch(`https://deeptoneai.onrender.com/history/${uname}`);
       const data = await res.json();
       if (Array.isArray(data)) {
         setHistory(data);
@@ -137,7 +137,7 @@ export default function Home() {
             ) : (
               <>
                 <h2 className="text-xl mb-4 text-center">Register</h2>
-                <Register onSwitch={() => setShowLogin(true)} />
+                <Register onSwitch={() => setShowLogin(true)} onLoginSuccess={handleLoginSuccess} />
               </>
             )}
           </div>
