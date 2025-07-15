@@ -9,6 +9,7 @@ export default function FileUpload({ username, refreshHistory, onUploadComplete 
   const [file, setFile] = useState(null);
   const [resultData, setResultData] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
@@ -28,6 +29,9 @@ export default function FileUpload({ username, refreshHistory, onUploadComplete 
     formData.append('file', file);
     formData.append('username', username);
 
+    setLoading(true);
+    setResultData(null);
+
     try {
       const res = await fetch('https://deeptoneai.onrender.com/predict', {
         method: 'POST',
@@ -35,19 +39,21 @@ export default function FileUpload({ username, refreshHistory, onUploadComplete 
       });
 
       if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Network error: ${res.status} - ${errorText}`);
+        const text = await res.text();
+        throw new Error(`Status ${res.status} – ${text}`);
       }
 
       const data = await res.json();
       setResultData(data);
 
       if (refreshHistory) refreshHistory();
-      if (onUploadComplete) onUploadComplete(data);  // 🔥 notify parent
+      if (onUploadComplete) onUploadComplete(data);
 
     } catch (err) {
-      console.error(err);
-      alert('Failed to analyze audio: ' + err.message);
+      console.error('Analyze Error:', err);
+      alert('⚠️ Failed to analyze audio. Backend may be asleep or not reachable. Please try again in 30–60 seconds.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,10 +85,10 @@ export default function FileUpload({ username, refreshHistory, onUploadComplete 
 
       <button
         onClick={handleAnalyze}
-        disabled={!file}
+        disabled={!file || loading}
         className="bg-teal-400 text-slate-900 font-semibold px-6 py-2 rounded-md hover:bg-teal-300 transition disabled:opacity-50"
       >
-        Analyze Audio
+        {loading ? 'Analyzing...' : 'Analyze Audio'}
       </button>
 
       <p className="text-sm text-gray-300 mt-2">
