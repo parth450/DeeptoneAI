@@ -34,7 +34,7 @@ export default function Home() {
 
   const fetchHistory = async (uname) => {
     try {
-      const res = await fetch(`https://deeptoneai.onrender.com/history/${uname}`);
+      const res = await fetch(`https://deeptoneai.up.railway.app/history/${uname}`);
       const data = await res.json();
       if (Array.isArray(data)) {
         setHistory(data);
