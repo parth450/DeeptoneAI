@@ -14,7 +14,7 @@ main = Blueprint('main', __name__)
 def home():
     return "🎧 Welcome to Deeptone AI API — Deepfake Voice Detection"
 
-#  AUDIO PREDICTION ROUTE
+#  AUDIO PREDICTION
 @main.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
@@ -29,7 +29,6 @@ def predict():
     try:
         result = classify_audio(file)
 
-        # Convert numpy floats to native Python floats
         clean_result = {
             k: float(v) if isinstance(v, (np.float32, np.float64)) else v
             for k, v in result.items()
@@ -52,11 +51,10 @@ def predict():
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 
-#  USER REGISTRATION
+#  REGISTER
 @main.route('/register', methods=['POST'])
 def register():
     try:
-        # Accept JSON or FormData
         if request.is_json:
             data = request.get_json()
             username = data.get("username")
@@ -84,11 +82,10 @@ def register():
         return jsonify({"error": "Registration failed", "details": str(e)}), 500
 
 
-#  USER LOGIN
+#  LOGIN
 @main.route('/login', methods=['POST'])
 def login():
     try:
-        # Accept JSON or FormData
         if request.is_json:
             data = request.get_json()
             username = data.get("username")
@@ -107,14 +104,18 @@ def login():
         if not check_password_hash(user['password'], password):
             return jsonify({"error": "Invalid password"}), 401
 
-        return jsonify({"message": "Login successful", "username": username}), 200
+        return jsonify({
+            "message": "Login successful",
+            "username": username,
+            "success": True     # ✅ ADDED
+        }), 200
 
     except Exception as e:
         print("Login error:", str(e))
         return jsonify({"error": "Login failed", "details": str(e)}), 500
 
 
-#  USER HISTORY
+#  HISTORY
 @main.route('/history/<username>', methods=['GET'])
 def get_history(username):
     try:
