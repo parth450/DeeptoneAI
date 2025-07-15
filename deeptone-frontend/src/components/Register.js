@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function Register({ onSwitch }) {
+export default function Register({ onSwitch, onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -12,19 +12,28 @@ export default function Register({ onSwitch }) {
     try {
       const res = await fetch('https://deeptoneai.onrender.com/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
-        alert('Registration successful! You can now login.');
-        onSwitch(); // switch to login screen
+        //  Automatically login after successful registration
+        const loginRes = await fetch('https://deeptoneai.onrender.com/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const loginData = await loginRes.json();
+        if (loginRes.ok && loginData.username) {
+          onLoginSuccess(loginData.username); //  login user
+        } else {
+          alert('Registered, but failed to log in');
+        }
       } else {
-        alert(data.message || 'Registration failed.');
+        alert(data.error || 'Registration failed');
       }
     } catch (err) {
       console.error(err);
