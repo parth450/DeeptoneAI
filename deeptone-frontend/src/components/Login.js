@@ -17,15 +17,15 @@ export default function Login({ onSwitch, onLoginSuccess }) {
       });
 
       const data = await res.json();
+      console.log('🔍 Login response:', data);
 
       if (res.ok && data.success) {
-        onLoginSuccess(data.username); // ✅ Login success
+        onLoginSuccess(data.username); // ✅ Automatically log in
       } else {
-        alert(data.error || 'Login failed.');
+        console.warn('⚠️ Login failed:', data);
       }
     } catch (err) {
-      console.error(err);
-      alert('Error logging in');
+      console.error('🚨 Login error:', err);
     }
   };
 
