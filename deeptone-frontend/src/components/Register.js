@@ -10,7 +10,7 @@ export default function Register({ onSwitch, onLoginSuccess }) {
     e.preventDefault();
 
     try {
-      const res = await fetch('https://deeptoneai.onrender.com/register', {
+      const res = await fetch('https://deeptoneai.up.railway.app/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -20,7 +20,7 @@ export default function Register({ onSwitch, onLoginSuccess }) {
 
       if (res.ok && data.success) {
         // ✅ Auto-login after registration
-        const loginRes = await fetch('https://deeptoneai.onrender.com/login', {
+        const loginRes = await fetch('https://deeptoneai.up.railway.app/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),
