@@ -20,13 +20,14 @@ export default function Login({ onSwitch, onLoginSuccess }) {
 
       const data = await res.json();
 
-      if (res.ok && data.success && data.username) {
-        onLoginSuccess(data.username);
+      if (res.ok && data.username) {
+        onLoginSuccess(data.username); // ✅ Pass username to parent
       } else {
-        console.error(data.message || 'Login failed.');
+        alert(data.error || 'Login failed.');
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error(err);
+      alert('Error logging in');
     }
   };
 
