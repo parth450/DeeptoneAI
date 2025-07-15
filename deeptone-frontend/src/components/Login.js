@@ -18,7 +18,7 @@ export default function Login({ onSwitch, onLoginSuccess }) {
 
       const data = await res.json();
 
-      if (res.ok && data.username) {
+      if (res.ok && data.success) {
         onLoginSuccess(data.username); // ✅ Login success
       } else {
         alert(data.error || 'Login failed.');
