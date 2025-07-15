@@ -33,7 +33,7 @@ export default function FileUpload({ username, refreshHistory, onUploadComplete 
     setResultData(null);
 
     try {
-      const res = await fetch('https://deeptoneai.onrender.com/predict', {
+      const res = await fetch('https://deeptoneai.up.railway.app/predict', {
         method: 'POST',
         body: formData,
       });
