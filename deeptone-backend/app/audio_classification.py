@@ -2,81 +2,78 @@ import os
 import numpy as np
 import librosa
 import joblib
-from sklearn.metrics import classification_report, accuracy_score
+import tempfile
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
 
-# === Optimized MFCC Extraction ===
+# ============ Feature Extraction ============
 def extract_features(file_path):
     try:
         print(f"Loading file: {file_path}")
-        y, sr = librosa.load(file_path, sr=16000, duration=10.0)  # Resample to 16kHz, max 10 sec
-        print(f"Audio loaded: duration = {len(y)/sr:.2f}s, sample rate = {sr}")
-        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=10)        # Fewer coefficients
+        y, sr = librosa.load(file_path, sr=16000, duration=10.0)  # limit to 10s, resample
+        print(f"Loaded: {len(y)/sr:.2f}s at {sr}Hz")
+        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=10)
         return np.mean(mfcc, axis=1)
     except Exception as e:
-        print("Error extracting features:", e)
-        return np.zeros(10)  # fallback zero vector if error
+        print("❌ Error extracting features:", e)
+        return np.zeros(10)
 
-# === Load Dataset ===
+# ============ Load Dataset for Training ============
 def load_dataset(dataset_path):
     X, y = [], []
-
-    for label, subfolder in enumerate(['real', 'fake']):
-        folder = os.path.join(dataset_path, subfolder)
-        print("Looking in:", folder)
-
-        for file in os.listdir(folder):
+    for label, folder in enumerate(['real', 'fake']):
+        dir_path = os.path.join(dataset_path, folder)
+        for file in os.listdir(dir_path):
             if file.endswith('.wav'):
-                path = os.path.join(folder, file)
+                path = os.path.join(dir_path, file)
                 features = extract_features(path)
                 X.append(features)
                 y.append(label)
-
     return np.array(X), np.array(y)
 
-# === Train and Evaluate ===
+# ============ Train Model ============
 if __name__ == '__main__':
     dataset_path = './dataset'
-    print("Loading dataset...")
+    print(" Loading dataset...")
     X, y = load_dataset(dataset_path)
 
-    print("Training model...")
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+    print(" Training model...")
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     model = RandomForestClassifier(n_estimators=50, random_state=1)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
-    print("\n=== CLASSIFICATION REPORT ===")
-    print(classification_report(y_test, y_pred, target_names=['Real', 'Fake']))
-    print(f"\n Overall Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+    print(" Classification Report:")
+    print(classification_report(y_test, y_pred))
+    print(f" Accuracy: {accuracy_score(y_test, y_pred)*100:.2f}%")
 
     os.makedirs('./model', exist_ok=True)
     joblib.dump(model, './model/trained_model.pkl')
     print(" Model saved to ./model/trained_model.pkl")
 
-# === Load model for Flask usage ===
+# ============ Load Trained Model ============
 model_path = './model/trained_model.pkl'
-if os.path.exists(model_path):
-    model = joblib.load(model_path)
-else:
-    model = None
-    print(" Model not found. Please run this script to train it.")
+model = joblib.load(model_path) if os.path.exists(model_path) else None
 
-# === classify_audio (used by Flask) ===
-def classify_audio(file_path):
+# ============ Prediction Function ============
+def classify_audio(file):
     if model is None:
-        return {'error': 'Model not loaded. Please train it first.'}
+        return {'error': 'Model not loaded'}
 
     try:
-        features = extract_features(file_path).reshape(1, -1)
-        prediction = model.predict(features)[0]
-        prob = model.predict_proba(features)[0]
+        # Save uploaded in-memory file to disk
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+            file.save(tmp)
+            tmp_path = tmp.name
+
+        features = extract_features(tmp_path).reshape(1, -1)
+        pred = model.predict(features)[0]
+        proba = model.predict_proba(features)[0]
 
         return {
-            "prediction": "REAL" if prediction == 0 else "FAKE",
-            "accuracy": float(np.max(prob)),
+            "prediction": "REAL" if pred == 0 else "FAKE",
+            "accuracy": float(np.max(proba)),
             "recall": 0.9,
             "precision": 0.9,
             "f1_score": 0.9
