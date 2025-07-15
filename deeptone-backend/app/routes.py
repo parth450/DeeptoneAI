@@ -14,8 +14,7 @@ main = Blueprint('main', __name__)
 def home():
     return "🎧 Welcome to Deeptone AI API — Deepfake Voice Detection"
 
-
-# 🔍 AUDIO PREDICTION ROUTE
+#  AUDIO PREDICTION ROUTE
 @main.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
@@ -30,7 +29,7 @@ def predict():
     try:
         result = classify_audio(file)
 
-        # Clean numpy floats to native Python floats
+        # Convert numpy floats to native Python floats
         clean_result = {
             k: float(v) if isinstance(v, (np.float32, np.float64)) else v
             for k, v in result.items()
@@ -53,46 +52,69 @@ def predict():
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 
-# 👤 USER REGISTRATION
+#  USER REGISTRATION
 @main.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
+    try:
+        # Accept JSON or FormData
+        if request.is_json:
+            data = request.get_json()
+            username = data.get("username")
+            password = data.get("password")
+        else:
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-    if not username or not password:
-        return jsonify({"error": "Username and password are required"}), 400
+        if not username or not password:
+            return jsonify({"error": "Username and password are required"}), 400
 
-    if users_collection.find_one({"username": username}):
-        return jsonify({"error": "User already exists"}), 409
+        if users_collection.find_one({"username": username}):
+            return jsonify({"error": "User already exists"}), 409
 
-    hashed_password = generate_password_hash(password)
-    users_collection.insert_one({
-        "username": username,
-        "password": hashed_password
-    })
+        hashed_password = generate_password_hash(password)
+        users_collection.insert_one({
+            "username": username,
+            "password": hashed_password
+        })
 
-    return jsonify({"message": "User registered successfully", "success": True}), 201
+        return jsonify({"message": "User registered successfully", "username": username, "success": True}), 201
+
+    except Exception as e:
+        print("Register error:", str(e))
+        return jsonify({"error": "Registration failed", "details": str(e)}), 500
 
 
-# 🔐 USER LOGIN
+#  USER LOGIN
 @main.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
+    try:
+        # Accept JSON or FormData
+        if request.is_json:
+            data = request.get_json()
+            username = data.get("username")
+            password = data.get("password")
+        else:
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-    user = users_collection.find_one({"username": username})
-    if not user:
-        return jsonify({"error": "Invalid username"}), 401
+        if not username or not password:
+            return jsonify({"error": "Username and password required"}), 400
 
-    if not check_password_hash(user['password'], password):
-        return jsonify({"error": "Invalid password"}), 401
+        user = users_collection.find_one({"username": username})
+        if not user:
+            return jsonify({"error": "Invalid username"}), 401
 
-    return jsonify({"message": "Login successful", "username": username}), 200
+        if not check_password_hash(user['password'], password):
+            return jsonify({"error": "Invalid password"}), 401
+
+        return jsonify({"message": "Login successful", "username": username}), 200
+
+    except Exception as e:
+        print("Login error:", str(e))
+        return jsonify({"error": "Login failed", "details": str(e)}), 500
 
 
-# 📜 USER HISTORY
+#  USER HISTORY
 @main.route('/history/<username>', methods=['GET'])
 def get_history(username):
     try:
