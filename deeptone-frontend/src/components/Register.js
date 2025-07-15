@@ -19,7 +19,7 @@ export default function Register({ onSwitch, onLoginSuccess }) {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        //  Automatically login after successful registration
+        // ✅ Auto-login after registration
         const loginRes = await fetch('https://deeptoneai.onrender.com/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -27,16 +27,17 @@ export default function Register({ onSwitch, onLoginSuccess }) {
         });
 
         const loginData = await loginRes.json();
-        if (loginRes.ok && loginData.username) {
-          onLoginSuccess(loginData.username); //  login user
+
+        if (loginRes.ok && loginData.success) {
+          onLoginSuccess(loginData.username); // 🎉 Login success
         } else {
-          alert('Registered, but failed to log in');
+          alert(loginData.error || 'Registered, but failed to log in');
         }
       } else {
         alert(data.error || 'Registration failed');
       }
     } catch (err) {
-      console.error(err);
+      console.error('Registration error:', err);
       alert('Error during registration');
     }
   };
