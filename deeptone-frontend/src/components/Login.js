@@ -12,16 +12,14 @@ export default function Login({ onSwitch, onLoginSuccess }) {
     try {
       const res = await fetch('https://deeptoneai.onrender.com/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
 
       if (res.ok && data.username) {
-        onLoginSuccess(data.username); // ✅ Pass username to parent
+        onLoginSuccess(data.username); // ✅ Login success
       } else {
         alert(data.error || 'Login failed.');
       }
