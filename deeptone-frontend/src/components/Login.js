@@ -10,7 +10,7 @@ export default function Login({ onSwitch, onLoginSuccess }) {
     e.preventDefault();
 
     try {
-      const res = await fetch('https://deeptoneai.onrender.com/login', {
+      const res = await fetch('https://deeptoneai.up.railway.app/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
