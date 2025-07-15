@@ -55,6 +55,7 @@ def predict():
 @main.route('/register', methods=['POST'])
 def register():
     try:
+        # Accept both JSON and FormData
         if request.is_json:
             data = request.get_json()
             username = data.get("username")
@@ -66,16 +67,22 @@ def register():
         if not username or not password:
             return jsonify({"error": "Username and password are required"}), 400
 
+        # Check if user exists
         if users_collection.find_one({"username": username}):
             return jsonify({"error": "User already exists"}), 409
 
+        # Create new user
         hashed_password = generate_password_hash(password)
         users_collection.insert_one({
             "username": username,
             "password": hashed_password
         })
 
-        return jsonify({"message": "User registered successfully", "username": username, "success": True}), 201
+        return jsonify({
+            "message": "User registered successfully",
+            "username": username,
+            "success": True
+        }), 201
 
     except Exception as e:
         print("Register error:", str(e))
@@ -104,15 +111,12 @@ def login():
         if not check_password_hash(user['password'], password):
             return jsonify({"error": "Invalid password"}), 401
 
-        return jsonify({
-            "message": "Login successful",
-            "username": username,
-            "success": True     # ✅ ADDED
-        }), 200
+        return jsonify({"message": "Login successful", "username": username, "success": True}), 200
 
     except Exception as e:
         print("Login error:", str(e))
         return jsonify({"error": "Login failed", "details": str(e)}), 500
+
 
 
 #  HISTORY
