@@ -8,15 +8,15 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
 
 # ============ Feature Extraction ============
-def extract_features(file_path):
+def extract_features(file):
     try:
-        print(f"Loading file: {file_path}")
-        y, sr = librosa.load(file_path, sr=16000, duration=10.0)  # limit to 10s, resample
-        print(f"Loaded: {len(y)/sr:.2f}s at {sr}Hz")
+        print(" Extracting features...")
+        y, sr = librosa.load(file, sr=16000, duration=10.0)  # load directly from file-like
+        print(f" Loaded: {len(y)/sr:.2f}s at {sr}Hz")
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=10)
         return np.mean(mfcc, axis=1)
     except Exception as e:
-        print("❌ Error extracting features:", e)
+        print(" Error extracting features:", e)
         return np.zeros(10)
 
 # ============ Load Dataset for Training ============
@@ -62,12 +62,8 @@ def classify_audio(file):
         return {'error': 'Model not loaded'}
 
     try:
-        # Save uploaded in-memory file to disk
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-            file.save(tmp)
-            tmp_path = tmp.name
-
-        features = extract_features(tmp_path).reshape(1, -1)
+        # Convert to features directly from file-like object
+        features = extract_features(file).reshape(1, -1)
         pred = model.predict(features)[0]
         proba = model.predict_proba(features)[0]
 
