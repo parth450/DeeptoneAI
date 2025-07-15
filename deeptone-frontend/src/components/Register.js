@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function Register({ onSwitch, onLoginSuccess }) {
+export default function Register({ onSwitch }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -21,13 +21,14 @@ export default function Register({ onSwitch, onLoginSuccess }) {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // Auto login immediately after registration
-        onLoginSuccess(username);
+        alert('Registration successful! You can now login.');
+        onSwitch(); // switch to login screen
       } else {
-        console.error(data.message || 'Registration failed.');
+        alert(data.message || 'Registration failed.');
       }
     } catch (err) {
-      console.error('Registration error:', err);
+      console.error(err);
+      alert('Error during registration');
     }
   };
 
