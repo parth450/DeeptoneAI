@@ -7,7 +7,7 @@ import soundfile as sf  # Required for raw decoding fallback
 
 MODEL_PATH = os.path.join('model', 'trained_model.pkl')
 model = joblib.load(MODEL_PATH)
-print(f"✅ Model loaded from {MODEL_PATH}")
+print(f" Model loaded from {MODEL_PATH}")
 
 label_map = {0: 'Real', 1: 'Fake'}
 
@@ -26,7 +26,7 @@ def extract_features(file_stream):
         return mfcc_scaled.reshape(1, -1)
 
     except Exception as e:
-        print("❌ Feature extraction failed:", str(e))
+        print(" Feature extraction failed:", str(e))
         return None
 
 def classify_audio(file_stream):
@@ -49,5 +49,5 @@ def classify_audio(file_stream):
         }
 
     except Exception as e:
-        print("❌ classify_audio error:", str(e))
+        print(" classify_audio error:", str(e))
         return {'error': str(e)}
