@@ -14,7 +14,7 @@ main = Blueprint('main', __name__)
 def home():
     return "🎧 Welcome to Deeptone AI API — Deepfake Voice Detection"
 
-# ---------------- AUDIO PREDICTION ----------------
+#  AUDIO PREDICTION 
 @main.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
@@ -51,7 +51,7 @@ def predict():
         return jsonify({"success": False, "error": "Internal server error", "details": str(e)}), 500
 
 
-# ---------------- REGISTER ----------------
+#  REGISTER 
 @main.route('/register', methods=['POST'])
 def register():
     try:
@@ -78,7 +78,7 @@ def register():
         return jsonify({"success": False, "error": "Registration failed", "details": str(e)}), 500
 
 
-# ---------------- LOGIN ----------------
+# LOGIN 
 @main.route('/login', methods=['POST'])
 def login():
     try:
@@ -103,7 +103,7 @@ def login():
         return jsonify({"success": False, "error": "Login failed", "details": str(e)}), 500
 
 
-# ---------------- HISTORY ----------------
+# HISTORY 
 @main.route('/history/<username>', methods=['GET'])
 def get_history(username):
     try:
