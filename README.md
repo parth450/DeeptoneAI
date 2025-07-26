@@ -6,7 +6,7 @@ A full-stack AI-powered app that detects whether an audio clip is **REAL** or **
 
 ## ⚡ Features
 
-- Upload or record audio
+- Upload  audio
 - Deepfake voice detection (Real/Fake)
 - Display metrics: Accuracy, Precision, Recall, F1-Score
 - Authentication system (Register/Login)
